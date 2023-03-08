@@ -1,4 +1,5 @@
 ﻿using MetaMindsCodingTask.Models;
+using Newtonsoft.Json;
 
 namespace MetaMindsCodingTask.Repositories
 {
@@ -41,35 +42,12 @@ namespace MetaMindsCodingTask.Repositories
         /// </summary>
         /// <param name="userID">user id</param>
         /// <returns></returns>
-        public UserModel GetUser(int userID)
+        public SingleUserModel GetUser(int userID)
         {
-            UserModel _user = new UserModel();
-
-            var response = _client.GetAsync(userID.ToString());
-            response.Wait();
-
-            var results = response.Result;
-            if (results.IsSuccessStatusCode)
-            {
-                var readContents = results.Content.ReadAsAsync<UserModel>();
-                readContents.Wait();
-
-                _user = readContents.Result;
-            }
-
-            return _user;
-        }
-
-        /// <summary>
-        /// Create a new user.
-        /// </summary>
-        /// <param name="user">New User object</param>
-        /// <returns></returns>
-        public DataModel Create(DataModel user)
-        {
-            DataModel _data = new DataModel();
+            SingleUserModel _user = new SingleUserModel();
             List<AttendanceModel> attendances = new List<AttendanceModel>();
 
+            #region weekdays
             // get last week's weekday dates
             DayOfWeek weekStart = DayOfWeek.Monday;
             DateTime startingDate = DateTime.Today;
@@ -89,11 +67,37 @@ namespace MetaMindsCodingTask.Repositories
 
                 attendance.Id = counter;
                 attendance.Date = startingDate.AddDays(-7 + counter);
-                attendance.TimeIn = Convert.ToDateTime(String.Concat(attendance.Date.ToShortDateString() ," 08:00:00 AM"));
+                attendance.TimeIn = Convert.ToDateTime(String.Concat(attendance.Date.ToShortDateString(), " 08:00:00 AM"));
                 attendance.TimeOut = Convert.ToDateTime(String.Concat(attendance.Date.ToShortDateString(), " 05:00:00 PM"));
                 attendances.Add(attendance);
             }
+            #endregion
 
+            var response = _client.GetAsync(String.Concat("/api/users/", userID));
+            response.Wait();
+
+            var results = response.Result;
+            if (results.IsSuccessStatusCode)
+            {
+                var readContents = results.Content.ReadAsAsync<SingleUserModel>();
+                readContents.Wait();
+
+                _user = readContents.Result;
+                _user.Data.Attendance = attendances;
+            }
+
+            return _user;
+        }
+
+        /// <summary>
+        /// Create a new user.
+        /// </summary>
+        /// <param name="user">New User object</param>
+        /// <returns></returns>
+        public DataModel Create(DataModel user)
+        {
+            DataModel _data = new DataModel();
+            
             var postResponse = _client.PostAsJsonAsync<DataModel>("", user);
             postResponse.Wait();
 
@@ -103,8 +107,7 @@ namespace MetaMindsCodingTask.Repositories
                 var postContent = results.Content.ReadAsAsync<DataModel>();
                 postContent.Wait();
 
-                _data = postContent.Result;
-                _data.Attendance = attendances;
+                _data = postContent.Result;             
             }
 
             return _data;
@@ -116,7 +119,7 @@ namespace MetaMindsCodingTask.Repositories
         /// <param name="userID">user Id</param>
         public void Delete(int userID)
         {
-            var deleteTask = _client.DeleteAsync(userID.ToString());
+            var deleteTask = _client.DeleteAsync(String.Concat("users/", userID));
             deleteTask.Wait();
 
             var result = deleteTask.Result;

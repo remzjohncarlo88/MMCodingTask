@@ -1,0 +1,23 @@
+﻿@model MetaMindsCodingTask.Models.SingleUserModel
+
+<p>Name: @Model.Data.First_Name  @Model.Data.Last_name </p> 
+<p>Email: @Model.Data.Email</p>
+
+<table class="table table-striped table-condensed table-hover">
+    <tr>
+        <th>Date</th>
+        <th>Time-In</th>
+        <th>Time-Out</th>
+    </tr>
+
+    <tbody>
+        @foreach(var item in @Model.Data.Attendance)
+        {
+            <tr>
+                <td>@Convert.ToString(string.Format("{0:dd/MM/yyyy}", item.Date))</td>
+                <td>@Convert.ToString(string.Format("{0:hh:mm tt}", item.TimeIn))</td>
+                <td>@Convert.ToString(string.Format("{0:hh:mm tt}", item.TimeOut))</td>
+            </tr>
+        }
+    </tbody>    
+</table>

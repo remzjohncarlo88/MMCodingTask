@@ -4,6 +4,48 @@
     ViewData["Title"] = "Home Page";
 }
 
+<script>
+    var ConfirmDelete = function (UserId) {
+        $("#hiddenUserId").val(UserId);
+        $("#deleteModal").modal('show');
+    }
+
+    var DeleteUser = function () {
+        var Id = $("#hiddenUserId").val();
+        $.ajax({
+            type: "DELETE",
+            url: '@Url.Action("Delete", "Home")',
+            data: { "id": Id },
+            success: function (result) {
+                $("#deleteModal").modal("hide");
+            }
+        })
+    }
+
+    var DisplayDetails = function (userID) {
+        $.ajax({
+            type: "GET",
+            url: '@Url.Action("GetUser", "Home")',
+            data: { "userId": userID },
+            contentType: "application/json; charset=utf-8",
+            dataType: "html",
+            success: function (response) {
+                $("#detailsModal").find(".modal-body").html(response);
+                $("#detailsModal").modal('show');
+            }
+        });
+    }
+
+    var CloseDeleteModal = function () {
+        $("#deleteModal").modal("hide");
+    }
+
+    var CloseDisplayModal = function () {
+        $("#detailsModal").modal("hide");
+    }
+
+</script>
+
 <div class="text-center">
     <h1 class="display-4">Users</h1>
 
@@ -24,11 +66,49 @@
                     <td>@Html.DisplayFor(modelItem => item.Email)</td>
                     <td><img src=@Html.DisplayFor(modelItem => item.Avatar) alt="Girl in a jacket" width="25" height="25"></td>
                     <td>
-                        @Html.ActionLink("Details", "Details", new { id=item.Id }) |
-                        @Html.ActionLink("Delete", "Delete", new { id=item.Id })
+                        <a class="" id="@item.Id" style="cursor:pointer" title="Details" onclick="DisplayDetails(@item.Id)">Details</a>
+                        <a class="" id="@item.Id" style="cursor:pointer" title="Delete" onclick="ConfirmDelete(@item.Id)">Delete</a>
                     </td>
                 </tr>
             }
-        </tbody>
+        </tbody>    
     </table>
+</div>
+
+@*DeleteModal*@
+ <div class="modal fade" id="deleteModal" role="dialog">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h3 class="modal-title">Delete User</h3>
+                <button type="button" class="close" onclick="CloseDeleteModal()">&times;</button>
+            </div>
+            <div class="modal-body">
+                <h6>Are you sure ? You want to delete this. </h6>
+            </div>
+            <div class="modal-footer">
+                <a href="#" class="btn btn-default" onclick="CloseDeleteModal()">Cancel</a>
+                <a href="#" class="btn btn-success" onclick="DeleteUser()">Confirm</a>
+            </div>
+        </div>
+    </div>
+    @*hidden field for storing current employeeId*@
+    <input type="hidden" id="hiddenUserId" />
+</div>
+
+@*DisplayDetails*@
+<div id="detailsModal" class="modal" tabindex="-1" role="dialog">
+    <div class="modal-dialog" role="document">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h3 class="modal-title">User Details</h3>
+                <button type="button" class="close" onclick="CloseDisplayModal()">&times;</button>
+            </div>
+            <div class="modal-body">
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" onclick="CloseDisplayModal()">Close</button>
+            </div>
+        </div>
+    </div>
 </div>

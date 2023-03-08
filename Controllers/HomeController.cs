@@ -28,11 +28,16 @@ namespace MetaMindsCodingTask.Controllers
             return View(data);
         }
 
+        /// <summary>
+        /// Get single user.
+        /// </summary>
+        /// <param name="userId">user id</param>
+        /// <returns></returns>
         [HttpGet]
-        public IActionResult GetUser(int userId)
+        public PartialViewResult GetUser(int userId)
         {
             var data = _userRepository.GetUser(userId);
-            return RedirectToAction("Index");
+            return PartialView("_SingleUserView", data);
         }
 
         /// <summary>
@@ -53,10 +58,10 @@ namespace MetaMindsCodingTask.Controllers
         /// <param name="id">user id</param>
         /// <returns></returns>
         [HttpDelete]
-        public IActionResult Delete(int id)
+        public JsonResult Delete(int id)
         {
             _userRepository.Delete(id);
-            return RedirectToAction("Index");
+            return Json(true);
         }
     }
 }
