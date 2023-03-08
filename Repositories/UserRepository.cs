@@ -1,5 +1,6 @@
 ﻿using MetaMindsCodingTask.Models;
 using Newtonsoft.Json;
+using System.Text;
 
 namespace MetaMindsCodingTask.Repositories
 {
@@ -94,11 +95,12 @@ namespace MetaMindsCodingTask.Repositories
         /// </summary>
         /// <param name="user">New User object</param>
         /// <returns></returns>
-        public DataModel Create(DataModel user)
+        public DataModel Create(string user)
         {
             DataModel _data = new DataModel();
-            
-            var postResponse = _client.PostAsJsonAsync<DataModel>("", user);
+            HttpContent c = new StringContent(user, Encoding.UTF8, "application/json");
+
+            var postResponse = _client.PostAsync("", c);
             postResponse.Wait();
 
             var results = postResponse.Result;

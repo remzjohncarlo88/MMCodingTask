@@ -1,6 +1,7 @@
 ﻿using MetaMindsCodingTask.Models;
 using MetaMindsCodingTask.Repositories;
 using Microsoft.AspNetCore.Mvc;
+using Newtonsoft.Json.Linq;
 using System.Diagnostics;
 
 namespace MetaMindsCodingTask.Controllers
@@ -46,9 +47,15 @@ namespace MetaMindsCodingTask.Controllers
         /// <param name="user">new user details</param>
         /// <returns></returns>
         [HttpPost]
-        public IActionResult Create(DataModel user)
+        public IActionResult Create(string name, string job)
         {
-            var data = _userRepository.Create(user);
+            dynamic user = new JObject();
+            user.Name = name;
+            user.Job = job;
+
+            var userJson = Newtonsoft.Json.JsonConvert.SerializeObject(user);
+
+            var data = _userRepository.Create(userJson);
             return RedirectToAction("Index");
         }
 

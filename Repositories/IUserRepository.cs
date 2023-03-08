@@ -6,7 +6,7 @@ namespace MetaMindsCodingTask.Repositories
     {
         UserModel Get(int pageNumber = 1);
         SingleUserModel GetUser(int userID); 
-        DataModel Create(DataModel user);
+        DataModel Create(string user);
         void Delete(int userID);
     }
 }
